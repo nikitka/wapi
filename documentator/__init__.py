@@ -34,6 +34,10 @@ class ApiDocumentator(object):
         self.auth_methods = get_instance(auth_methods or [])
         self.api = get_instance(api)
 
+    @property
+    def __name__(self):
+        return self.__class__.__name__
+
     def __call__(self, request):
         functions = []
 # This does not work for now
