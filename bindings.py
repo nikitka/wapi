@@ -49,6 +49,10 @@ class Binding(object):
             if settings.DEBUG or apifunc.is_write:
                 self.registry['write'][registered_name] = apifunc
 
+    @property
+    def __name__(self):
+        return self.__class__.__name__
+
     def mangle_name(self, name):
         """Modifies the function name which gets exposed"""
         return name
