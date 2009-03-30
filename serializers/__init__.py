@@ -93,7 +93,7 @@ class NoSerializationMethod(RuntimeError):
 class BaseSerializerType(type):
     def __init__(mcs, name, bases, dct):
         super(BaseSerializerType, mcs).__init__(name, bases, dct)
-        if getattr(mcs, 'serializes', None):
+        if hasattr(mcs, 'serializes'):
             _SERIALIZERS_REGISTRY[mcs.serializes] = mcs()
             
 class BaseSerializer(object):
