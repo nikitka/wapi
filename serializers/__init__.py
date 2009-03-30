@@ -22,27 +22,8 @@
 
 from functools import wraps
 from wapi.formatters import get_formatter
-
-class objname(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self, func):
-        func.obj_name = self.name
-        return func
-
-class extends(object):
-    def __init__(self, extended):
-        self.extended = extended
-
-    def __call__(self, func):
-        def new_func(*args, **kwargs):
-            d = getattr(args[0].__class__, self.extended)(*args, **kwargs)
-            d.update(func(*args, **kwargs))
-            return d
-        if hasattr(func, 'obj_name'):
-            new_func.obj_name = func.obj_name
-        return wraps(func)(new_func)
+from wapi.serializers.decorators import *
+from wapi.serializers.serializers import *
 
 def include(obj, method=None, **kwargs):
     return serialization(obj, method, **kwargs)[1]
@@ -76,86 +57,11 @@ def S(**kwargs):
 def empty(obj_name):
     return { obj_name: {} }
 
-_SERIALIZERS_REGISTRY = {}
-
-class Serialization(object):
-    def __init__(self, name, method):
-        self.name = name
-        self.method = method
-    
-    def apply(self, obj, **kwargs):
-        return (self.name, self.method(obj, **kwargs))
-
-
-class NoSerializationMethod(RuntimeError):
-    pass
-
-class BaseSerializerType(type):
-    def __init__(mcs, name, bases, dct):
-        super(BaseSerializerType, mcs).__init__(name, bases, dct)
-        if hasattr(mcs, 'serializes'):
-            _SERIALIZERS_REGISTRY[mcs.serializes] = mcs()
-            
-class BaseSerializer(object):
-    obj_names = {}
-    def __init__(self, *args, **kwargs):
-        super(BaseSerializer, self).__init__(*args, **kwargs)
-        for k, v in self.__class__.__dict__.iteritems():
-            if hasattr(v, 'obj_name'):
-                self.__class__.obj_names[v] = v.obj_name
-
-    def obj_name(self, func):
-        return self.__class__.obj_names.get(func)
-
-    def default(self, obj, **kw):
-        try:
-            return dict([(k, v) for k, v in obj.__dict__.iteritems() if not k.startswith('_')])
-        except AttributeError:
-            return dict()
-
-    def _get_serialization(self, obj, method):
-        try:
-            m = getattr(self, method or 'default')
-        except AttributeError:
-            raise NoSerializationMethod('Serialization "%s" is not defined in serializer "%s" for object "%s"' % \
-                (method, _SERIALIZERS_REGISTRY.get(obj.__class__, Serializer).__name__, obj.__class__.__name__))
-        return Serialization(self.obj_name(m) or obj.__class__.__name__.lower(), m)
-
-    def _do_serialization(self, obj, method=None, **kw):
-        serialization = self._get_serialization(obj, method)
-        return serialization.apply(obj, **kw)
-
-class Serializer(BaseSerializer):
-    __metaclass__ = BaseSerializerType
-
-class DictSerializer(Serializer):
-    serializes = {}.__class__
-
-    def default(self, obj, **kwargs):
-        result = {}
-        for k, v in obj.iteritems():
-            result[k] = chain(v)
-            """FIXME 
-
-               The reason for the check: {'test': 1} would generate
-               <dict><test><int /></test></dict> with chaining.
-               
-               Another 'possible' fix is to modify l:114 to return obj
-               instead of dict() which would result in
-               <dict><test><int>1</int></test></dict>"""
-            if result[k] is None or (len(result[k]) == 1 and \
-               (result[k].items()[0][1] is None or \
-               len(result[k].items()[0][1]) == 0)):
-                result[k] = v
-        return result
-
-_DEFAULT_SERIALIZER = Serializer()
-
 def get_class_serializer(cls):
     try:
-        return _SERIALIZERS_REGISTRY[cls]
+        return SERIALIZERS_REGISTRY[cls]
     except KeyError:
-        return _DEFAULT_SERIALIZER
+        return DEFAULT_SERIALIZER
 
 def get_object_serialization(obj, method=None):
     ser = get_class_serializer(obj.__class__)
