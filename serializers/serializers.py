@@ -1,3 +1,6 @@
+from wapi.exceptions import ApiError
+from wapi.serializers.decorators import *
+
 SERIALIZERS_REGISTRY = {}
 
 class Serialization(object):
@@ -71,5 +74,12 @@ class DictSerializer(Serializer):
                len(result[k].items()[0][1]) == 0)):
                 result[k] = v
         return result
+
+class ApiErrorSerializer(Serializer):
+    serializes = ApiError
+
+    @objname('error')
+    def default(self, obj, **kwargs):
+        return {'message': obj.message, 'type': obj.__class__.__name__, 'status_code': obj.status_code}
 
 DEFAULT_SERIALIZER = Serializer()
