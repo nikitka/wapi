@@ -135,9 +135,14 @@ class DictSerializer(Serializer):
         result = {}
         for k, v in obj.iteritems():
             result[k] = chain(v)
-            """Validate whether the result of chain exists,
-               AND whether it isn't a dictionary with 1 key of which the
-               value is None or an empty dictionary"""
+            """FIXME 
+
+               The reason for the check: {'test': 1} would generate
+               <dict><test><int /></test></dict> with chaining.
+               
+               Another 'possible' fix is to modify l:114 to return obj
+               instead of dict() which would result in
+               <dict><test><int>1</int></test></dict>"""
             if result[k] is None or (len(result[k]) == 1 and \
                (result[k].items()[0][1] is None or \
                len(result[k].items()[0][1]) == 0)):
