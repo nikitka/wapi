@@ -132,14 +132,7 @@ class DictSerializer(Serializer):
     serializes = {}.__class__
 
     def default(self, obj, **kwargs):
-        result = {}
-        for k, v in obj.iteritems():
-            result[k] = chain(v)
-            if result[k] is None or (len(result[k]) == 1 and \
-               (result[k].items()[0][1] is None or \
-               len(result[k].items()[0][1]) == 0)):
-                result[k] = v
-        return result
+        return dict([(k, chain(v)) for k, v in obj.iteritems()])
 
 _DEFAULT_SERIALIZER = Serializer()
 
