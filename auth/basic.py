@@ -21,34 +21,21 @@
 # THE SOFTWARE.
 
 from django.http import HttpResponse
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 
 from wapi.auth.base import ApiAuth
 
 class ApiAuthBasic(ApiAuth):
-    def check_password(self, request, realm, user, password):
-        """Override this and implement the logic for your authentication
-        method. You are supposed to return True if authentication
-        succeeded, False otherwise."""
-        raise NotImplementedError
-
     def login(self, request):
-        """Implements the logic for authentication"""
-        username, password = self.get_credentials(request)
-        if username and password:
-            try:
-                user = User.objects.get(username=username)
-            except User.DoesNotExist:
-                return None
-
-            if user.is_active and self.check_password(request, self.__class__.realm, user, password):
-                request.user = user
-                return None
-
-            return self.authentication_failed(request)
-
-        return None
+        """Override this and implement the logic for your authentication
+        method. You are supposed to return ``None`` if authentication
+        succeeded, ``self.authentication_failed`` otherwise.
+        
+        If the authentication succeeded you should also set request.user
+        to the authenticated User."""
+        raise NotImplementedError
 
     def authentication_failed(self, request):
         """Returns a response indicating the provided credentials were wrong.
@@ -82,8 +69,17 @@ class ApiAuthBasicUserPassword(ApiAuthBasic):
     over the network, so it's usually better to avoid it unless you are using
     SSL."""
 
-    def check_password(self, request, realm, user, password):
-        return user.check_password(password)
+    def login(self, request):
+        username,password = self.get_credentials(request)
+        if username is not None and password is not None:
+            user = authenticate(username=username, password=password)
+            if user is not None and user.is_active:
+                request.user = user
+                return None
+            else:
+                return self.authentication_failed(request)
+        else:
+            return None
 
 class ApiAuthBasicUserPasswordSecure(ApiAuthBasicUserPassword):
     """This authentication method is the same as ApiAuthBasicUserPassword.
