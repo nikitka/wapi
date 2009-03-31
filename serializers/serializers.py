@@ -55,7 +55,7 @@ class Serializer(BaseSerializer):
     def default(self, obj, **kw):
         return obj
 
-class ModelSerializer(BaseSerializer):
+class ModelSerializer(Serializer):
     serializes = models.Model
 
     def default(self, obj, **kw):
