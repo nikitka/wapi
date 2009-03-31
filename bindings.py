@@ -104,7 +104,8 @@ class RestBinding(Binding):
         except ApiLoginRequired:
             return self.auth.login_required(request)
         except ApiError, e:
-            return e.get_response()
+            from wapi.responses import SingleSerializableResponse
+            response = SingleSerializableResponse(e)
 
         response.kwargs['request'] = request
         return response.transform(response_cls)
