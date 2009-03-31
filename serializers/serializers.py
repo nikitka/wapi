@@ -59,7 +59,10 @@ class Serializer(BaseSerializer):
     serializes = object
 
     def default(self, obj, **kw):
-        return obj
+        try:
+            return dict([(k, v) for k, v in obj.__dict__.iteritems() if not k.startswith('_')])
+        except AttributeError:
+            return dict()
 
 class ModelSerializer(Serializer):
     serializes = models.Model
