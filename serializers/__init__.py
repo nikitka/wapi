@@ -168,7 +168,7 @@ def serialize(format, objs, method=None, out=None, **kwargs):
     if len(objs) == 0:
         fmt.empty()
     else:
-        fmt.format_list([get_object_serialization(objs, method).apply(obj, **kwargs) for obj in objs])
+        fmt.format_list([get_object_serialization(obj, method).apply(obj, **kwargs) for obj in objs])
     fmt.end()
     return fmt.get()
 
