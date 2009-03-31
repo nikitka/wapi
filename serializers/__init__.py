@@ -58,10 +58,12 @@ def empty(obj_name):
     return { obj_name: {} }
 
 def get_class_serializer(cls):
-    try:
-        return SERIALIZERS_REGISTRY[cls]
-    except KeyError:
-        return DEFAULT_SERIALIZER
+    from inspect import getmro
+    for cls_profile in getmro(cls):
+        if cls_profile in SERIALIZERS_REGISTRY.keys():
+            return SERIALIZERS_REGISTRY[cls_profile]
+
+    return DEFAULT_SERIALIZER
 
 def get_object_serialization(obj, method=None):
     ser = get_class_serializer(obj.__class__)
