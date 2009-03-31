@@ -34,10 +34,10 @@ class BaseSerializer(object):
         super(BaseSerializer, self).__init__(*args, **kwargs)
         for k, v in self.__class__.__dict__.iteritems():
             if hasattr(v, 'obj_name'):
-                self.__class__.obj_names[v] = v.obj_name
+                self.obj_names[getattr(self, k)] = v.obj_name
 
     def obj_name(self, func):
-        return self.__class__.obj_names.get(func)
+        return self.obj_names.get(func, None)
 
     def default(self, obj, **kw):
         raise NotImplementedError
