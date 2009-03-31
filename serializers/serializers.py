@@ -20,8 +20,14 @@ class BaseSerializerType(type):
     def __init__(mcs, name, bases, dct):
         super(BaseSerializerType, mcs).__init__(name, bases, dct)
         if hasattr(mcs, 'serializes'):
-            SERIALIZERS_REGISTRY[mcs.serializes] = mcs()
-            
+            try:
+                iter(mcs.serializes)
+            except TypeError:
+                SERIALIZERS_REGISTRY[mcs.serializes] = mcs()
+            else:
+                for s in mcs.serializes:
+                    SERIALIZERS_REGISTRY[s] = mcs()
+
 class BaseSerializer(object):
     obj_names = {}
     def __init__(self, *args, **kwargs):
