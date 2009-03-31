@@ -63,8 +63,6 @@ def get_class_serializer(cls):
         if cls_profile in SERIALIZERS_REGISTRY.keys():
             return SERIALIZERS_REGISTRY[cls_profile]
 
-    return DEFAULT_SERIALIZER
-
 def get_object_serialization(obj, method=None):
     ser = get_class_serializer(obj.__class__)
     return ser._get_serialization(obj, method)

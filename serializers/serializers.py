@@ -1,3 +1,4 @@
+from django.db import models
 from wapi.exceptions import ApiError
 from wapi.serializers.decorators import *
 
@@ -33,10 +34,7 @@ class BaseSerializer(object):
         return self.__class__.obj_names.get(func)
 
     def default(self, obj, **kw):
-        try:
-            return dict([(k, v) for k, v in obj.__dict__.iteritems() if not k.startswith('_')])
-        except AttributeError:
-            return dict()
+        raise NotImplementedError
 
     def _get_serialization(self, obj, method):
         try:
@@ -52,6 +50,19 @@ class BaseSerializer(object):
 
 class Serializer(BaseSerializer):
     __metaclass__ = BaseSerializerType
+    serializes = object
+
+    def default(self, obj, **kw):
+        return obj
+
+class ModelSerializer(BaseSerializer):
+    serializes = models.Model
+
+    def default(self, obj, **kw):
+        try:
+            return dict([(k, v) for k, v in obj.__dict__.iteritems() if not k.startswith('_')])
+        except AttributeError:
+            return dict()
 
 class DictSerializer(Serializer):
     serializes = {}.__class__
@@ -82,4 +93,3 @@ class ApiErrorSerializer(Serializer):
     def default(self, obj, **kwargs):
         return {'message': obj.message, 'type': obj.__class__.__name__, 'status_code': obj.status_code}
 
-DEFAULT_SERIALIZER = Serializer()
