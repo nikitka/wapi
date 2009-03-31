@@ -47,7 +47,7 @@ class BaseSerializer(object):
             m = getattr(self, method or 'default')
         except AttributeError:
             raise NoSerializationMethod('Serialization "%s" is not defined in serializer "%s" for object "%s"' % \
-                (method, SERIALIZERS_REGISTRY.get(obj.__class__, Serializer).__name__, obj.__class__.__name__))
+                (method, self.__class__.__name__, obj.__class__.__name__))
         return Serialization(self.obj_name(m) or obj.__class__.__name__.lower(), m)
 
     def _do_serialization(self, obj, method=None, **kw):
