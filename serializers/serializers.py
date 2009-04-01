@@ -10,7 +10,11 @@ class Serialization(object):
         self.method = method
     
     def apply(self, obj, **kwargs):
-        return (self.name, self.method(obj, **kwargs))
+        data = self.method(obj, **kwargs)
+        if isinstance(data, dict):
+            return (self.name, data)
+        else:
+            return (self.name, data)
 
 
 class NoSerializationMethod(RuntimeError):
@@ -59,17 +63,22 @@ class Serializer(BaseSerializer):
     serializes = object
 
     def default(self, obj, **kw):
-        try:
-            return dict([(k, v) for k, v in obj.__dict__.iteritems() if not k.startswith('_')])
-        except AttributeError:
-            return dict()
+        return u'%s' % obj
+
+import datetime
+class DateTimeSerializer(Serializer):
+    serializes = datetime
+
+    def default(self, obj, **kw):
+        return obj.strftime('%Y/%m/%d %H:%M:%S')
 
 class ModelSerializer(Serializer):
     serializes = models.Model
 
     def default(self, obj, **kw):
+        from wapi.serializers import chain
         try:
-            return dict([(k, v) for k, v in obj.__dict__.iteritems() if not k.startswith('_')])
+            return dict([(k, chain(v)) for k, v in obj.__dict__.iteritems() if not k.startswith('_')])
         except AttributeError:
             return dict()
 
