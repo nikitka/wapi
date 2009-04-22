@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import datetime
 import re
 
 from django.forms import ValidationError
@@ -108,6 +109,21 @@ class UnicodeValidator(StringValidator):
                 raise ValidationError, _('Invalid unicode')
 
         return super(UnicodeValidator, self).validate(value)
+
+class DateTimeValidator(Validator):
+    def validate(self, value):
+        if isinstance(value, datetime.datetime):
+            return value
+        
+        str2datetime = datetime.datetime.strptime
+        # trying to guess the format
+        if len(value) == 16:
+            try:
+                return str2datetime(value, '%Y-%m-%d %H:%M')
+            except ValueError:
+                return str2datetime(value, '%Y-%m-%dT%H:%M')
+        else:
+            raise ValidationError, _('Unknown datetime format')
 
 class AlphaNumericValidator(Validator):
     """Validates that the given value is an alphanumeric string"""
@@ -231,6 +247,7 @@ TYPE_VALIDATORS = {
     str: StringValidator,
     basestring: StringValidator,
     unicode: UnicodeValidator,
+    datetime.datetime: DateTimeValidator,
     file: None,
 }
 
