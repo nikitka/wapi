@@ -64,8 +64,8 @@ class FunctionParameter(object):
         for validator in self.validators:
             try:
                 value = validator(value)
-            except ValidationError:
-                raise ApiInvalidParam(param=self.name, value=value)
+            except ValidationError, e:
+                raise ApiInvalidParam(message=e.message, param=self.name, value=value)
 
         dct[self.name] = value
         return value
