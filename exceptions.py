@@ -62,7 +62,7 @@ class ApiMissingParam(ApiBadRequest):
 
     def __init__(self, message=None, param=None):
         ApiBadRequest.__init__(self, message)
-        if param:
+        if param is not None:
             self.message = 'Missing required parameter "%s"' % param
 
 class ApiInvalidParam(ApiBadRequest):
@@ -71,7 +71,7 @@ class ApiInvalidParam(ApiBadRequest):
 
     def __init__(self, message=None, param=None, value=None):
         ApiBadRequest.__init__(self, message)
-        if param and value:
+        if param is not None and value is not None:
             self.message = 'Value "%s" for parameter "%s" is not valid' % \
                 (param, value)
 
