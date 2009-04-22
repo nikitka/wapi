@@ -26,6 +26,7 @@ from copy import copy
 
 from django.http import Http404
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 from wapi.responses import get_response
 from wapi.formatters import UnknownFormat
@@ -104,6 +105,9 @@ class RestBinding(Binding):
         except ApiLoginRequired:
             return self.auth.login_required(request)
         except ApiError, e:
+            from wapi.responses import SingleSerializableResponse
+            response = SingleSerializableResponse(e)
+        except ValidationError, e:
             from wapi.responses import SingleSerializableResponse
             response = SingleSerializableResponse(e)
 
