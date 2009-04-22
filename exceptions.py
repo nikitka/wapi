@@ -75,6 +75,9 @@ class ApiInvalidParam(ApiBadRequest):
             self.message = 'Value "%s" for parameter "%s" is not valid' % \
                 (param, value)
 
+        if message is not None and message != '':
+            self.message = '%s %s' % (message, self.message)
+
 class ApiForbidden(ApiError):
     """The user hasn't permission to perform the requested action"""
     status_code = 403
