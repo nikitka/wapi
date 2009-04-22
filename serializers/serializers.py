@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+
 from wapi.exceptions import ApiError
 from wapi.serializers.decorators import *
 
@@ -96,9 +98,9 @@ class DictSerializer(Serializer):
         return result
 
 class ApiErrorSerializer(Serializer):
-    serializes = ApiError
+    serializes = (ApiError, ValidationError)
 
     @objname('error')
     def default(self, obj, **kwargs):
-        return {'message': obj.message, 'type': obj.__class__.__name__, 'status_code': obj.status_code}
+        return {'message': obj.message, 'type': obj.__class__.__name__, 'status_code': getattr(obj, 'status_code', 400)}
 
