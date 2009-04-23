@@ -125,6 +125,33 @@ class DateTimeValidator(Validator):
         else:
             raise ValidationError, _('Unknown datetime format')
 
+class DateValidator(Validator):
+    def validate(self, value):
+        if isinstance(value, datetime.date):
+            return value
+        
+        str2date = datetime.date.strptime
+        # trying to guess the format
+        if len(value) == 10:
+            try:
+                return str2date(value, '%Y-%m-%d')
+            except ValueError:
+                return str2date(value, '%Y/%m/%d')
+        elif len(value) == 8:
+            return str2date(value, '%Y%m%d')
+
+class TimeValidator(Validator):
+    def validate(self, value):
+        if isinstance(value, datetime.time):
+            return value
+        
+        str2time = datetime.time.strptime
+        # trying to guess the format
+        if len(value) == 5:
+            return str2time(value, '%H:%M')
+        elif len(value) == 8:
+            return str2time(value, '%H:%M:%S')
+
 class AlphaNumericValidator(Validator):
     """Validates that the given value is an alphanumeric string"""
     def validate(self, value):
@@ -248,6 +275,8 @@ TYPE_VALIDATORS = {
     basestring: StringValidator,
     unicode: UnicodeValidator,
     datetime.datetime: DateTimeValidator,
+    datetime.date: DateValidator,
+    datetime.time: TimeValidator,
     file: None,
 }
 
