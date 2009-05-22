@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""HTTP $esponses which format object in different formats"""
+"""HTTP responses which format object in different formats"""
 
 from django.http import HttpResponse
 from wapi.serializers import serialize, serialize_one
