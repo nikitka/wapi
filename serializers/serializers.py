@@ -12,12 +12,7 @@ class Serialization(object):
         self.method = method
     
     def apply(self, obj, **kwargs):
-        data = self.method(obj, **kwargs)
-        if isinstance(data, dict):
-            return (self.name, data)
-        else:
-            return (self.name, data)
-
+        return (self.name, self.method(obj, **kwargs)) 
 
 class NoSerializationMethod(RuntimeError):
     pass
