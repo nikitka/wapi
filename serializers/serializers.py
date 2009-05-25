@@ -67,7 +67,7 @@ class Serializer(BaseSerializer):
 
 import datetime
 class DateTimeSerializer(Serializer):
-    serializes = datetime
+    serializes = datetime.datetime
 
     def default(self, obj, **kw):
         return obj.strftime('%Y/%m/%d %H:%M:%S')
