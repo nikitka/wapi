@@ -87,22 +87,7 @@ class DictSerializer(Serializer):
 
     def default(self, obj, **kwargs):
         from wapi.serializers import chain
-        result = {}
-        for k, v in obj.iteritems():
-            result[k] = chain(v)
-            """FIXME 
-
-               The reason for the check: {'test': 1} would generate
-               <dict><test><int /></test></dict> with chaining.
-               
-               Another 'possible' fix is to modify l:114 to return obj
-               instead of dict() which would result in
-               <dict><test><int>1</int></test></dict>"""
-            if result[k] is None or (len(result[k]) == 1 and \
-               (result[k].items()[0][1] is None or \
-               len(result[k].items()[0][1]) == 0)):
-                result[k] = v
-        return result
+        return dict([(k, chain(v)) for k, v in obj.iteritems()])
 
 class ApiErrorSerializer(Serializer):
     serializes = ApiError
