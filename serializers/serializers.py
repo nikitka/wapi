@@ -12,7 +12,11 @@ class Serialization(object):
         self.method = method
     
     def apply(self, obj, **kwargs):
-        return (self.name, self.method(obj, **kwargs))
+        data = self.method(obj, **kwargs)
+        if isinstance(data, dict):
+            return (self.name, data)
+        else:
+            return (self.name, data)
 
 
 class NoSerializationMethod(RuntimeError):
@@ -61,17 +65,22 @@ class Serializer(BaseSerializer):
     serializes = object
 
     def default(self, obj, **kw):
-        try:
-            return dict([(k, v) for k, v in obj.__dict__.iteritems() if not k.startswith('_')])
-        except AttributeError:
-            return dict()
+        return u'%s' % obj
+
+import datetime
+class DateTimeSerializer(Serializer):
+    serializes = datetime.datetime
+
+    def default(self, obj, **kw):
+        return obj.strftime('%Y/%m/%d %H:%M:%S')
 
 class ModelSerializer(Serializer):
     serializes = models.Model
 
     def default(self, obj, **kw):
+        from wapi.serializers import chain
         try:
-            return dict([(k, v) for k, v in obj.__dict__.iteritems() if not k.startswith('_')])
+            return dict([(k, chain(v)) for k, v in obj.__dict__.iteritems() if not k.startswith('_')])
         except AttributeError:
             return dict()
 
@@ -80,22 +89,7 @@ class DictSerializer(Serializer):
 
     def default(self, obj, **kwargs):
         from wapi.serializers import chain
-        result = {}
-        for k, v in obj.iteritems():
-            result[k] = chain(v)
-            """FIXME 
-
-               The reason for the check: {'test': 1} would generate
-               <dict><test><int /></test></dict> with chaining.
-               
-               Another 'possible' fix is to modify l:114 to return obj
-               instead of dict() which would result in
-               <dict><test><int>1</int></test></dict>"""
-            if result[k] is None or (len(result[k]) == 1 and \
-               (result[k].items()[0][1] is None or \
-               len(result[k].items()[0][1]) == 0)):
-                result[k] = v
-        return result
+        return dict([(k, chain(v)) for k, v in obj.iteritems()])
 
 class ApiErrorSerializer(Serializer):
     serializes = (ApiError, ValidationError)

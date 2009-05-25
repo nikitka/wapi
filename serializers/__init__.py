@@ -36,7 +36,14 @@ def include_list(objs, method=None, **kwargs):
     return [s.method(obj, **kwargs) for obj in objs]
 
 def chain(obj, method=None, **kwargs):
-    return dict([serialization(obj, method, **kwargs)])
+    serializer = get_class_serializer(obj.__class__)
+    data = [serialization(obj, method, **kwargs)]
+    if type(serializer) == Serializer:
+        # if we serialize it via the default serializer,
+        # we only want the result
+        return data[0][1]
+    else:
+        return dict(data)
 
 def proplist(obj, properties):
     return dict([(prop, getattr(obj, prop)) for prop in properties])
