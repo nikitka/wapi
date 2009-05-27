@@ -58,6 +58,7 @@ class BaseSerializer(object):
 class Serializer(BaseSerializer):
     __metaclass__ = BaseSerializerType
     serializes = object
+    serializes_as_dict = False
 
     def default(self, obj, **kw):
         return u'%s' % obj
@@ -65,12 +66,14 @@ class Serializer(BaseSerializer):
 import datetime
 class DateTimeSerializer(Serializer):
     serializes = datetime.datetime
+    serializes_as_dict = False
 
     def default(self, obj, **kw):
         return obj.strftime('%Y/%m/%d %H:%M:%S')
 
 class ModelSerializer(Serializer):
     serializes = models.Model
+    serializes_as_dict = True
 
     def default(self, obj, **kw):
         from wapi.serializers import chain
@@ -81,6 +84,7 @@ class ModelSerializer(Serializer):
 
 class DictSerializer(Serializer):
     serializes = {}.__class__
+    serializes_as_dict = True
 
     def default(self, obj, **kwargs):
         from wapi.serializers import chain
@@ -88,6 +92,7 @@ class DictSerializer(Serializer):
 
 class ApiErrorSerializer(Serializer):
     serializes = (ApiError, ValidationError)
+    serializes_as_dict = True
 
     @objname('error')
     def default(self, obj, **kwargs):

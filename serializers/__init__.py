@@ -38,7 +38,7 @@ def include_list(objs, method=None, **kwargs):
 def chain(obj, method=None, **kwargs):
     serializer = get_class_serializer(obj.__class__)
     data = [serialization(obj, method, **kwargs)]
-    if type(serializer) == Serializer:
+    if not serializer.__class__.serializes_as_dict:
         # if we serialize it via the default serializer,
         # we only want the result
         return data[0][1]
