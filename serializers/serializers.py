@@ -69,7 +69,7 @@ class DateTimeSerializer(Serializer):
     serializes_as_dict = False
 
     def default(self, obj, **kw):
-        return obj.strftime('%Y/%m/%d %H:%M:%S')
+        return obj.isoformat()
 
 class ModelSerializer(Serializer):
     serializes = models.Model
