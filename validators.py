@@ -122,6 +122,11 @@ class DateTimeValidator(Validator):
                 return str2datetime(value, '%Y-%m-%d %H:%M')
             except ValueError:
                 return str2datetime(value, '%Y-%m-%dT%H:%M')
+        elif len(value) == 19:
+            try:
+                return str2datetime(value, '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                return str2datetime(value, '%Y-%m-%dT%H:%M:%S')
         else:
             raise ValidationError, _('Unknown datetime format')
 
