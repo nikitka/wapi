@@ -40,7 +40,7 @@ class XmlFormatter(Formatter):
         self.root = ET.Element(name)
 
     def end(self):
-        self.data = ET.tostring(self.root, 'utf8')
+        self.data = ET.tostring(self.root, 'utf-8')
 
     def format_element(self, parent, data):
         """Formats one element and appends it to 'parent'"""
