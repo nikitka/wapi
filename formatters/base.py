@@ -46,6 +46,10 @@ class BaseFormatter(object):
         """Called after the formatting ends and before retrieving the result"""
         pass
 
+    def none(self):
+        """ Called when an object is None """
+        return self.empty()
+
     def empty(self):
         """Called when an empty formatting is requested"""
         pass

@@ -78,10 +78,13 @@ def serialize(format, objs, method=None, out=None, **kwargs):
     fmt = get_formatter(format)(out=out)
     fmt.start()
 
-    if objs is None or len(objs) == 0:
+    if objs is None: 
+        fmt.none()
+    elif len(objs) == 0:
         fmt.empty()
     else:
         fmt.format_list([get_object_serialization(obj, method).apply(obj, **kwargs) for obj in objs])
+
     fmt.end()
     return fmt.get()
 
@@ -89,7 +92,7 @@ def serialize_one(format, obj, method, out=None, **kwargs):
     fmt = get_formatter(format)(out=out)
     fmt.start()
     if obj is None:
-        fmt.empty()
+        fmt.none()
     else:
         serialization = get_object_serialization(obj, method)
         fmt.format(serialization.apply(obj, **kwargs))

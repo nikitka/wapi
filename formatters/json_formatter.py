@@ -55,6 +55,9 @@ class JsonFormatter(Formatter):
     def format_list(self, data):
         self.data = simplejson.dumps([obj[1] for obj in data], cls=JsonEncoder)
 
+    def none(self):
+        self.data = '{}'
+
     def empty(self):
         self.data = '[]'
 
