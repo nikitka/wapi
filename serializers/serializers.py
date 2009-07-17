@@ -96,5 +96,10 @@ class ApiErrorSerializer(Serializer):
 
     @objname('error')
     def default(self, obj, **kwargs):
-        return {'message': obj.message, 'type': obj.__class__.__name__, 'status_code': getattr(obj, 'status_code', 400)}
+        return {
+            'error': True,
+            'message': obj.message, 
+            'type': obj.__class__.__name__, 
+            'status_code': getattr(obj, 'status_code', 400)
+        }
 
